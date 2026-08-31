@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+model Evaluation {
+  id          String   @id @default(cuid())
+  mesa        Int?
+  produtos    Int
+  atendimento Int
+  limpeza     Int
+  espera      Int
+  nps         Int
+  comentario  String?
+  nome        String?
+  contato     String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([mesa])
+}
