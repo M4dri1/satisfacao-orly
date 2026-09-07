@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { StarRating } from "./StarRating";
 import { NpsScale } from "./NpsScale";
+import { BrandMark } from "./BrandMark";
 
 type EvaluationFormProps = {
   mesa?: number | null;
@@ -88,24 +89,46 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
 
   if (done) {
     return (
-      <div className="card space-y-2 text-center">
-        <h1 className="text-xl font-semibold">Obrigado!</h1>
-        <p className="text-sm text-gray-600">
-          Sua avaliação foi registrada.
-        </p>
-        {mesa ? <p className="text-sm text-gray-500">Mesa {mesa}</p> : null}
+      <div className="orly-card space-y-4 p-8 text-center sm:p-10">
+        <BrandMark size="md" align="center" />
+        <div className="space-y-2 pt-2">
+          <p className="brand-display text-2xl text-orly-ink">Obrigado</p>
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-orly-muted">
+            Sua opinião ajuda a Orly a continuar oferecendo o melhor em
+            panificação e gastronomia.
+          </p>
+        </div>
+        {mesa ? (
+          <p className="text-xs font-medium tracking-wide text-orly-gold">
+            Mesa {mesa}
+          </p>
+        ) : null}
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card space-y-5">
-      <div>
-        <p className="text-sm font-semibold text-gray-800">Orly Bagueteria</p>
-        <h1 className="mt-1 text-xl font-semibold">Avaliação</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          {mesa ? `Mesa ${mesa} · ` : ""}Leva cerca de 1 minuto
-        </p>
+    <form
+      onSubmit={handleSubmit}
+      className="orly-card relative space-y-6 p-5 sm:p-7"
+    >
+      <div className="space-y-3 border-b border-orly-line pb-5">
+        <BrandMark
+          size="sm"
+          subtitle={
+            mesa
+              ? `Mesa ${mesa} · Paes Leme, 88`
+              : "Paes Leme, 88 · Marília"
+          }
+        />
+        <div className="pt-1">
+          <h1 className="brand-display text-2xl text-orly-ink sm:text-[1.65rem]">
+            Como foi sua visita?
+          </h1>
+          <p className="mt-1 text-sm text-orly-muted">
+            Leva cerca de 30 segundos
+          </p>
+        </div>
       </div>
 
       <div className="space-y-1">
@@ -133,14 +156,17 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
         />
       </div>
 
-      <NpsScale
-        value={form.nps}
-        onChange={(value) => setForm((prev) => ({ ...prev, nps: value }))}
-      />
+      <div className="rounded-xl bg-orly-cream/60 p-4">
+        <NpsScale
+          value={form.nps}
+          onChange={(value) => setForm((prev) => ({ ...prev, nps: value }))}
+        />
+      </div>
 
-      <div className="space-y-1">
-        <label htmlFor="comentario" className="text-sm font-medium">
-          Comentário (opcional)
+      <div className="space-y-1.5">
+        <label htmlFor="comentario" className="text-sm font-medium text-orly-ink">
+          Comentário{" "}
+          <span className="font-normal text-orly-muted">(opcional)</span>
         </label>
         <textarea
           id="comentario"
@@ -150,14 +176,18 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
           onChange={(event) =>
             setForm((prev) => ({ ...prev, comentario: event.target.value }))
           }
-          className="input resize-none"
+          placeholder="O que mais gostou? O que podemos melhorar?"
+          className="orly-input resize-none"
         />
       </div>
 
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <label htmlFor="nome" className="text-sm font-medium">
-            Nome (opcional)
+      <div className="space-y-3 rounded-xl border border-dashed border-orly-sand bg-orly-paper/50 p-4">
+        <p className="text-xs leading-relaxed text-orly-muted">
+          Opcional — deixe um contato se quiser que a Orly retorne
+        </p>
+        <div className="space-y-1.5">
+          <label htmlFor="nome" className="text-sm font-medium text-orly-ink">
+            Nome
           </label>
           <input
             id="nome"
@@ -167,13 +197,14 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
             onChange={(event) =>
               setForm((prev) => ({ ...prev, nome: event.target.value }))
             }
-            className="input"
+            placeholder="Seu nome"
+            className="orly-input"
             autoComplete="name"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="contato" className="text-sm font-medium">
-            Contato (opcional)
+        <div className="space-y-1.5">
+          <label htmlFor="contato" className="text-sm font-medium text-orly-ink">
+            Contato
           </label>
           <input
             id="contato"
@@ -183,13 +214,17 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
             onChange={(event) =>
               setForm((prev) => ({ ...prev, contato: event.target.value }))
             }
-            className="input"
+            placeholder="WhatsApp, telefone ou e-mail"
+            className="orly-input"
             autoComplete="tel"
           />
         </div>
       </div>
 
-      <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
+      <div
+        className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
+        aria-hidden="true"
+      >
         <label htmlFor="website">Website</label>
         <input
           id="website"
@@ -203,10 +238,14 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
         />
       </div>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? (
+        <p className="rounded-xl bg-red-50 px-3 py-2.5 text-sm text-[var(--danger)]">
+          {error}
+        </p>
+      ) : null}
 
-      <button type="submit" className="btn w-full" disabled={loading}>
-        {loading ? "Enviando..." : "Enviar"}
+      <button type="submit" className="orly-btn w-full py-3.5" disabled={loading}>
+        {loading ? "Enviando..." : "Enviar avaliação"}
       </button>
     </form>
   );

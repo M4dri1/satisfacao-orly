@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { DashboardStats } from "@/lib/stats";
+import { BrandMark } from "./BrandMark";
 
 type EvaluationRow = {
   id: string;
@@ -66,35 +67,47 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
     return params.toString();
   }, [filters]);
 
-  async function loadData() {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `/api/avaliacoes${queryString ? `?${queryString}` : ""}`
-      );
-      if (response.status === 401) {
-        router.push("/admin/login");
-        return;
-      }
-      const payload = await response.json();
-      if (!response.ok) {
-        setError(payload.error || "Erro ao carregar dados.");
-        return;
-      }
-      setStats(payload.stats);
-      setEvaluations(payload.evaluations);
-    } catch {
-      setError("Falha de conexão ao carregar o painel.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryString]);
+    let cancelled = false;
+
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(
+          `/api/avaliacoes${queryString ? `?${queryString}` : ""}`
+        );
+        if (response.status === 401) {
+          router.push("/admin/login");
+          return;
+        }
+        const payload = await response.json();
+        if (!response.ok) {
+          if (!cancelled) {
+            setError(payload.error || "Erro ao carregar dados.");
+          }
+          return;
+        }
+        if (!cancelled) {
+          setStats(payload.stats);
+          setEvaluations(payload.evaluations);
+        }
+      } catch {
+        if (!cancelled) {
+          setError("Falha de conexão ao carregar o painel.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadData();
+    return () => {
+      cancelled = true;
+    };
+  }, [queryString, router]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -107,29 +120,36 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
     window.open(url, "_blank");
   }
 
+  const maxTrend = Math.max(...stats.tendencia.map((item) => item.total), 1);
+
   return (
-    <div className="mx-auto min-h-screen max-w-5xl px-4 py-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-4">
-        <div>
-          <h1 className="text-xl font-semibold">Painel — Orly</h1>
-          <p className="text-sm text-gray-600">Olá, {adminName}</p>
+    <div className="page-shell relative z-10 mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-6">
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-orly-line pb-6">
+        <div className="space-y-3">
+          <BrandMark size="sm" />
+          <div>
+            <h1 className="brand-display text-2xl text-orly-ink sm:text-3xl">
+              Painel de satisfação
+            </h1>
+            <p className="mt-1 text-sm text-orly-muted">Olá, {adminName}</p>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/admin/qr" className="btn-secondary">
+          <Link href="/admin/qr" className="orly-btn-secondary">
             QR das mesas
           </Link>
-          <button type="button" className="btn-secondary" onClick={exportCsv}>
+          <button type="button" className="orly-btn-secondary" onClick={exportCsv}>
             Exportar CSV
           </button>
-          <button type="button" className="btn" onClick={handleLogout}>
+          <button type="button" className="orly-btn" onClick={handleLogout}>
             Sair
           </button>
         </div>
       </header>
 
-      <section className="card mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <section className="orly-card mb-6 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-5">
         <label className="space-y-1 text-sm">
-          <span className="text-gray-600">Mesa</span>
+          <span className="text-orly-muted">Mesa</span>
           <input
             type="number"
             min={1}
@@ -137,11 +157,11 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
             onChange={(event) =>
               setFilters((prev) => ({ ...prev, mesa: event.target.value }))
             }
-            className="input"
+            className="orly-input"
           />
         </label>
         <label className="space-y-1 text-sm">
-          <span className="text-gray-600">Nota mínima</span>
+          <span className="text-orly-muted">Nota mínima</span>
           <input
             type="number"
             min={1}
@@ -151,127 +171,193 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
             onChange={(event) =>
               setFilters((prev) => ({ ...prev, minNota: event.target.value }))
             }
-            className="input"
+            className="orly-input"
           />
         </label>
         <label className="space-y-1 text-sm">
-          <span className="text-gray-600">De</span>
+          <span className="text-orly-muted">De</span>
           <input
             type="date"
             value={filters.from}
             onChange={(event) =>
               setFilters((prev) => ({ ...prev, from: event.target.value }))
             }
-            className="input"
+            className="orly-input"
           />
         </label>
         <label className="space-y-1 text-sm">
-          <span className="text-gray-600">Até</span>
+          <span className="text-orly-muted">Até</span>
           <input
             type="date"
             value={filters.to}
             onChange={(event) =>
               setFilters((prev) => ({ ...prev, to: event.target.value }))
             }
-            className="input"
+            className="orly-input"
           />
         </label>
         <div className="flex items-end">
           <button
             type="button"
-            className="btn-secondary w-full"
+            className="orly-btn-secondary w-full"
             onClick={() =>
               setFilters({ mesa: "", minNota: "", from: "", to: "" })
             }
           >
-            Limpar
+            Limpar filtros
           </button>
         </div>
       </section>
 
-      {error ? <p className="mb-4 text-sm text-red-700">{error}</p> : null}
+      {error ? (
+        <p className="mb-4 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-[var(--danger)]">
+          {error}
+        </p>
+      ) : null}
 
-      <section className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <p className="text-xs text-gray-500">Respostas</p>
-          <p className="mt-1 text-2xl font-semibold">
-            {loading ? "…" : stats.total}
-          </p>
+      <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Respostas", value: String(stats.total) },
+          { label: "Média geral", value: stats.mediaGeral.toFixed(1) },
+          { label: "NPS médio", value: stats.mediaNps.toFixed(1) },
+          { label: "Score NPS", value: `${stats.npsScore}` },
+        ].map((card) => (
+          <div key={card.label} className="orly-card p-4 sm:p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-orly-muted">
+              {card.label}
+            </p>
+            <p className="mt-2 font-display text-3xl tabular-nums text-orly-ink">
+              {loading ? "…" : card.value}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      <section className="mb-6 grid gap-3 lg:grid-cols-2">
+        <div className="orly-card p-4 sm:p-5">
+          <h2 className="brand-display text-xl text-orly-ink">
+            Médias por critério
+          </h2>
+          <div className="mt-5 space-y-4">
+            {[
+              ["Produtos", stats.mediaProdutos],
+              ["Atendimento", stats.mediaAtendimento],
+              ["Limpeza", stats.mediaLimpeza],
+              ["Espera", stats.mediaEspera],
+            ].map(([label, value]) => (
+              <div key={String(label)}>
+                <div className="mb-1.5 flex justify-between text-sm">
+                  <span className="font-medium">{label}</span>
+                  <span className="tabular-nums text-orly-muted">
+                    {Number(value).toFixed(1)}
+                  </span>
+                </div>
+                <div className="h-2 rounded-full bg-orly-cream">
+                  <div
+                    className="h-2 rounded-full bg-orly-gold transition-all"
+                    style={{ width: `${(Number(value) / 5) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="card">
-          <p className="text-xs text-gray-500">Média geral</p>
-          <p className="mt-1 text-2xl font-semibold">
-            {loading ? "…" : stats.mediaGeral.toFixed(1)}
-          </p>
-        </div>
-        <div className="card">
-          <p className="text-xs text-gray-500">NPS médio</p>
-          <p className="mt-1 text-2xl font-semibold">
-            {loading ? "…" : stats.mediaNps.toFixed(1)}
-          </p>
-        </div>
-        <div className="card">
-          <p className="text-xs text-gray-500">Score NPS</p>
-          <p className="mt-1 text-2xl font-semibold">
-            {loading ? "…" : stats.npsScore}
-          </p>
+
+        <div className="orly-card p-4 sm:p-5">
+          <h2 className="brand-display text-xl text-orly-ink">
+            Tendência (14 dias)
+          </h2>
+          <div className="mt-6 flex h-40 items-end gap-1.5">
+            {stats.tendencia.length === 0 ? (
+              <p className="text-sm text-orly-muted">Sem dados no período.</p>
+            ) : (
+              stats.tendencia.map((item) => (
+                <div
+                  key={item.data}
+                  className="flex flex-1 flex-col items-center gap-2"
+                  title={`${item.data}: ${item.total} respostas, média ${item.media}`}
+                >
+                  <div
+                    className="w-full rounded-t-md bg-orly-toast/80"
+                    style={{
+                      height: `${Math.max((item.total / maxTrend) * 100, 8)}%`,
+                    }}
+                  />
+                  <span className="text-[10px] text-orly-muted">
+                    {item.data.slice(5)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </section>
 
-      <section className="card mb-4">
-        <h2 className="mb-3 font-semibold">Médias por critério</h2>
-        <ul className="space-y-1 text-sm">
-          <li>Produtos: {stats.mediaProdutos.toFixed(1)}</li>
-          <li>Atendimento: {stats.mediaAtendimento.toFixed(1)}</li>
-          <li>Limpeza: {stats.mediaLimpeza.toFixed(1)}</li>
-          <li>Espera: {stats.mediaEspera.toFixed(1)}</li>
-        </ul>
-      </section>
-
-      <section className="card overflow-hidden p-0">
-        <div className="border-b border-gray-200 px-4 py-3">
-          <h2 className="font-semibold">Avaliações recentes</h2>
+      <section className="orly-card overflow-hidden">
+        <div className="border-b border-orly-line px-4 py-4 sm:px-5">
+          <h2 className="brand-display text-xl text-orly-ink">
+            Avaliações recentes
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-600">
+            <thead className="bg-orly-cream/70 text-orly-muted">
               <tr>
-                <th className="px-3 py-2 font-medium">Data</th>
-                <th className="px-3 py-2 font-medium">Mesa</th>
-                <th className="px-3 py-2 font-medium">Média</th>
-                <th className="px-3 py-2 font-medium">NPS</th>
-                <th className="px-3 py-2 font-medium">Comentário</th>
+                <th className="px-4 py-3 font-semibold">Data</th>
+                <th className="px-4 py-3 font-semibold">Mesa</th>
+                <th className="px-4 py-3 font-semibold">Média</th>
+                <th className="px-4 py-3 font-semibold">NPS</th>
+                <th className="px-4 py-3 font-semibold">Cliente</th>
+                <th className="px-4 py-3 font-semibold">Comentário</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="px-3 py-4 text-gray-500" colSpan={5}>
+                  <td className="px-4 py-6 text-orly-muted" colSpan={6}>
                     Carregando...
                   </td>
                 </tr>
               ) : evaluations.length === 0 ? (
                 <tr>
-                  <td className="px-3 py-4 text-gray-500" colSpan={5}>
+                  <td className="px-4 py-6 text-orly-muted" colSpan={6}>
                     Nenhuma avaliação encontrada.
                   </td>
                 </tr>
               ) : (
                 evaluations.map((item) => (
-                  <tr key={item.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2 whitespace-nowrap">
+                  <tr
+                    key={item.id}
+                    className="border-t border-orly-line/80 align-top"
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap">
                       {new Date(item.createdAt).toLocaleString("pt-BR")}
                     </td>
-                    <td className="px-3 py-2">{item.mesa ?? "—"}</td>
-                    <td className="px-3 py-2">{mediaGeral(item)}</td>
-                    <td className="px-3 py-2">{item.nps}</td>
-                    <td className="max-w-sm px-3 py-2">
-                      {item.comentario || "—"}
-                      {(item.nome || item.contato) && (
-                        <div className="text-xs text-gray-500">
-                          {[item.nome, item.contato].filter(Boolean).join(" · ")}
+                    <td className="px-4 py-3">{item.mesa ?? "—"}</td>
+                    <td className="px-4 py-3 font-medium">{mediaGeral(item)}</td>
+                    <td className="px-4 py-3">{item.nps}</td>
+                    <td className="px-4 py-3">
+                      {item.nome || item.contato ? (
+                        <div>
+                          <div>{item.nome || "—"}</div>
+                          {item.contato ? (
+                            <div className="text-xs text-orly-muted">
+                              {item.contato}
+                            </div>
+                          ) : null}
                         </div>
+                      ) : (
+                        <span className="text-orly-muted">Anônimo</span>
                       )}
+                    </td>
+                    <td className="max-w-md px-4 py-3">
+                      {item.comentario || (
+                        <span className="text-orly-muted">Sem comentário</span>
+                      )}
+                      <div className="mt-1 text-xs text-orly-muted">
+                        P {item.produtos} · A {item.atendimento} · L{" "}
+                        {item.limpeza} · E {item.espera}
+                      </div>
                     </td>
                   </tr>
                 ))
