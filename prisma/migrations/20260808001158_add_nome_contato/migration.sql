@@ -1,3 +1,3 @@
 -- AlterTable
-ALTER TABLE "Evaluation" ADD COLUMN "contato" TEXT;
-ALTER TABLE "Evaluation" ADD COLUMN "nome" TEXT;
+ALTER TABLE "Evaluation" ADD COLUMN "contato" TEXT,
+ADD COLUMN "nome" TEXT;

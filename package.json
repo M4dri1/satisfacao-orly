@@ -7,9 +7,13 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma migrate deploy && tsx prisma/seed.ts",
+    "setup": "npm run docker:up && npx wait-on tcp:5432 && npm run db:setup",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -38,6 +42,7 @@
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.23.11",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^8.0.5"
   }
 }
