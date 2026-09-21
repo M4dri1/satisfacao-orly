@@ -13,7 +13,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma migrate deploy && tsx prisma/seed.ts",
-    "setup": "npm run docker:up && npx wait-on tcp:5432 && npm run db:setup",
+    "setup": "npm run docker:up && npx wait-on tcp:5432 tcp:6379 && npm run db:setup",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -23,6 +23,7 @@
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
+    "ioredis": "^5.11.1",
     "jose": "^6.2.8",
     "next": "14.2.35",
     "qrcode": "^1.5.4",

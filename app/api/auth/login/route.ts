@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     request.ip ||
     "unknown";
 
-  const limit = checkRateLimit(`login:${ip}`, 10, 60_000);
+  const limit = await checkRateLimit(`login:${ip}`, 10, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Muitas tentativas. Aguarde e tente novamente." },

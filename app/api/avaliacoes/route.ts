@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     request.ip ||
     "unknown";
 
-  const limit = checkRateLimit(`avaliacao:${ip}`, 8, 60_000);
+  const limit = await checkRateLimit(`avaliacao:${ip}`, 8, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       {
