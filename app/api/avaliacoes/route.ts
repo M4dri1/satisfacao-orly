@@ -1,26 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { evaluationSchema } from "@/lib/validation";
-import { checkRateLimit } from "@/lib/rate-limit";
-import { buildDashboardStats, toCsv } from "@/lib/stats";
+import { evaluationService } from "@/lib/services/evaluation-service";
 import { getSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.ip ||
-    "unknown";
-
-  const limit = await checkRateLimit(`avaliacao:${ip}`, 8, 60_000);
-  if (!limit.allowed) {
-    return NextResponse.json(
-      {
-        error: `Muitas avaliações em pouco tempo. Tente novamente em ${limit.retryAfterSeconds}s.`,
-      },
-      { status: 429 }
-    );
-  }
-
   let body: unknown;
   try {
     body = await request.json();
@@ -28,34 +10,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
-  const parsed = evaluationSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Dados inválidos. Verifique as notas e tente novamente." },
-      { status: 400 }
-    );
+  const result = await evaluationService.createFromRequest({
+    body,
+    headers: request.headers,
+    ipFallback: request.ip,
+  });
+
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  if (parsed.data.website) {
+  if ("discarded" in result.data) {
     return NextResponse.json({ ok: true });
   }
 
-  const evaluation = await prisma.evaluation.create({
-    data: {
-      mesa: parsed.data.mesa ?? null,
-      produtos: parsed.data.produtos,
-      atendimento: parsed.data.atendimento,
-      limpeza: parsed.data.limpeza,
-      espera: parsed.data.espera,
-      nps: parsed.data.nps,
-      comentario: parsed.data.comentario ?? null,
-      nome: parsed.data.nome ?? null,
-      contato: parsed.data.contato ?? null,
-      userAgent: request.headers.get("user-agent")?.slice(0, 300) || null,
-    },
-  });
-
-  return NextResponse.json({ ok: true, id: evaluation.id }, { status: 201 });
+  return NextResponse.json(
+    { ok: true, id: result.data.id },
+    { status: result.status ?? 201 }
+  );
 }
 
 export async function GET(request: NextRequest) {
@@ -66,51 +38,17 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const mesaParam = searchParams.get("mesa");
-  const minNota = searchParams.get("minNota");
-  const from = searchParams.get("from");
-  const to = searchParams.get("to");
-  const format = searchParams.get("format");
+  const minNotaParam = searchParams.get("minNota");
 
-  const where: {
-    mesa?: number;
-    createdAt?: { gte?: Date; lte?: Date };
-  } = {};
+  const filters = {
+    mesa: mesaParam ? Number(mesaParam) : undefined,
+    minNota: minNotaParam ? Number(minNotaParam) : undefined,
+    from: searchParams.get("from") || undefined,
+    to: searchParams.get("to") || undefined,
+  };
 
-  if (mesaParam) {
-    const mesa = Number(mesaParam);
-    if (Number.isInteger(mesa)) {
-      where.mesa = mesa;
-    }
-  }
-
-  if (from || to) {
-    where.createdAt = {};
-    if (from) {
-      where.createdAt.gte = new Date(`${from}T00:00:00.000`);
-    }
-    if (to) {
-      where.createdAt.lte = new Date(`${to}T23:59:59.999`);
-    }
-  }
-
-  let evaluations = await prisma.evaluation.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
-
-  if (minNota) {
-    const minimum = Number(minNota);
-    if (!Number.isNaN(minimum)) {
-      evaluations = evaluations.filter(
-        (item) =>
-          (item.produtos + item.atendimento + item.limpeza + item.espera) / 4 >=
-          minimum
-      );
-    }
-  }
-
-  if (format === "csv") {
-    const csv = toCsv(evaluations);
+  if (searchParams.get("format") === "csv") {
+    const csv = await evaluationService.exportCsv(filters);
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
@@ -119,6 +57,6 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const stats = buildDashboardStats(evaluations);
-  return NextResponse.json({ stats, evaluations });
+  const payload = await evaluationService.listForAdmin(filters);
+  return NextResponse.json(payload);
 }
