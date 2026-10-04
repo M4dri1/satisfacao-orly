@@ -159,6 +159,10 @@ body {
   }
 }
 
+.print-only {
+  display: none;
+}
+
 @media print {
   body {
     background: white !important;
@@ -166,6 +170,10 @@ body {
 
   .no-print {
     display: none !important;
+  }
+
+  .print-only {
+    display: grid !important;
   }
 
   .page-shell::before {
