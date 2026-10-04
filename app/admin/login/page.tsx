@@ -6,7 +6,7 @@ import { BrandMark } from "@/components/BrandMark";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@orly.local");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

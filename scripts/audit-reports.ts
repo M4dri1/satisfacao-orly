@@ -192,6 +192,15 @@ async function main() {
     (item.comentario || "").includes(MARKER)
   );
   assert(markerRows.length === 4, `painel deveria ter 4 do lote, veio ${markerRows.length}`);
+  assert(
+    Array.isArray(panel.porMesa) && panel.porMesa.length === 1,
+    "comparativo por mesa deveria ter só a mesa filtrada"
+  );
+  const mesaRow = panel.porMesa[0];
+  assert(mesaRow.mesa === MESA, `comparativo trouxe mesa ${mesaRow.mesa}`);
+  assert(mesaRow.total === panel.stats.total, "total do comparativo divergente");
+  assert(mesaRow.mediaGeral === panel.stats.mediaGeral, "média do comparativo divergente");
+  assert(mesaRow.npsScore === panel.stats.npsScore, "NPS do comparativo divergente");
 
   const statsFromApi = buildDashboardStats(
     markerRows.map((item: {
@@ -307,6 +316,17 @@ async function main() {
   assert(all.stats.mediaGeral === recomputed.mediaGeral, "média geral do painel divergente");
   assert(all.stats.npsScore === recomputed.npsScore, "score NPS do painel divergente");
   assert(Array.isArray(all.stats.tendencia), "tendência ausente");
+  const rankingTotal = all.porMesa.reduce(
+    (sum: number, item: { total: number }) => sum + item.total,
+    0
+  );
+  assert(rankingTotal === all.stats.total, "soma do comparativo != total do painel");
+  for (let i = 1; i < all.porMesa.length; i += 1) {
+    assert(
+      all.porMesa[i - 1].mediaGeral <= all.porMesa[i].mediaGeral,
+      "comparativo fora de ordem"
+    );
+  }
 
   console.log("");
   console.log("OK — avaliações, médias e relatórios consistentes");

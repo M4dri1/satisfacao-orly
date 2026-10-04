@@ -4,7 +4,13 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const isProduction = process.env.NODE_ENV === "production";
+
 async function main() {
+  if (isProduction && (process.env.ADMIN_PASSWORD || "").length < 12) {
+    throw new Error("Em produção, ADMIN_PASSWORD precisa ter pelo menos 12 caracteres.");
+  }
+
   const email = process.env.ADMIN_EMAIL || "admin@orly.local";
   const password = process.env.ADMIN_PASSWORD || "orlyadmin123";
   const name = process.env.ADMIN_NAME || "Administrador Orly";
@@ -17,7 +23,7 @@ async function main() {
   });
 
   const existing = await prisma.evaluation.count();
-  if (existing === 0) {
+  if (!isProduction && existing === 0) {
     const samples = [
       {
         mesa: 1,

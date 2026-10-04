@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { DashboardStats } from "@/lib/stats";
+import type { Criterio, DashboardStats, MesaStats } from "@/lib/stats";
 import { BrandMark } from "./BrandMark";
 
 type EvaluationRow = {
@@ -39,6 +39,19 @@ const emptyStats: DashboardStats = {
   tendencia: [],
 };
 
+const criterioLabel: Record<Criterio, string> = {
+  produtos: "Produtos",
+  atendimento: "Atendimento",
+  limpeza: "Limpeza",
+  espera: "Espera",
+};
+
+function mediaTone(value: number) {
+  if (value >= 4.5) return "text-emerald-700";
+  if (value >= 3.5) return "text-orly-ink";
+  return "text-[var(--danger)]";
+}
+
 function mediaGeral(item: EvaluationRow) {
   return (
     (item.produtos + item.atendimento + item.limpeza + item.espera) / 4
@@ -49,6 +62,7 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [evaluations, setEvaluations] = useState<EvaluationRow[]>([]);
+  const [porMesa, setPorMesa] = useState<MesaStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
@@ -91,6 +105,7 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
         if (!cancelled) {
           setStats(payload.stats);
           setEvaluations(payload.evaluations);
+          setPorMesa(payload.porMesa ?? []);
         }
       } catch {
         if (!cancelled) {
@@ -274,15 +289,17 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
               stats.tendencia.map((item) => (
                 <div
                   key={item.data}
-                  className="flex flex-1 flex-col items-center gap-2"
+                  className="flex h-full flex-1 flex-col items-center gap-2"
                   title={`${item.data}: ${item.total} respostas, média ${item.media}`}
                 >
-                  <div
-                    className="w-full rounded-t-md bg-orly-toast/80"
-                    style={{
-                      height: `${Math.max((item.total / maxTrend) * 100, 8)}%`,
-                    }}
-                  />
+                  <div className="flex w-full flex-1 items-end">
+                    <div
+                      className="w-full rounded-t-md bg-orly-toast/80"
+                      style={{
+                        height: `${Math.max((item.total / maxTrend) * 100, 8)}%`,
+                      }}
+                    />
+                  </div>
                   <span className="text-[10px] text-orly-muted">
                     {item.data.slice(5)}
                   </span>
@@ -290,6 +307,85 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
               ))
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="orly-card mb-6 overflow-hidden">
+        <div className="border-b border-orly-line px-4 py-4 sm:px-5">
+          <h2 className="brand-display text-xl text-orly-ink">
+            Comparativo por mesa
+          </h2>
+          <p className="mt-1 text-sm text-orly-muted">
+            Da pior para a melhor média. Clique em uma mesa para filtrar o painel.
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-orly-cream/70 text-orly-muted">
+              <tr>
+                <th className="px-4 py-3 font-semibold">Mesa</th>
+                <th className="px-4 py-3 font-semibold">Respostas</th>
+                <th className="px-4 py-3 font-semibold">Média</th>
+                <th className="px-4 py-3 font-semibold">Score NPS</th>
+                <th className="px-4 py-3 font-semibold">Produtos</th>
+                <th className="px-4 py-3 font-semibold">Atendimento</th>
+                <th className="px-4 py-3 font-semibold">Limpeza</th>
+                <th className="px-4 py-3 font-semibold">Espera</th>
+                <th className="px-4 py-3 font-semibold">Ponto fraco</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td className="px-4 py-6 text-orly-muted" colSpan={9}>
+                    Carregando...
+                  </td>
+                </tr>
+              ) : porMesa.length === 0 ? (
+                <tr>
+                  <td className="px-4 py-6 text-orly-muted" colSpan={9}>
+                    Sem avaliações no período.
+                  </td>
+                </tr>
+              ) : (
+                porMesa.map((item) => (
+                  <tr
+                    key={item.mesa ?? "geral"}
+                    className={`border-t border-orly-line/80 ${
+                      item.mesa !== null ? "cursor-pointer hover:bg-orly-cream/50" : ""
+                    }`}
+                    onClick={() => {
+                      if (item.mesa !== null) {
+                        setFilters((prev) => ({ ...prev, mesa: String(item.mesa) }));
+                      }
+                    }}
+                  >
+                    <td className="px-4 py-3 font-medium">
+                      {item.mesa !== null ? `Mesa ${item.mesa}` : "Sem mesa"}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums">{item.total}</td>
+                    <td className={`px-4 py-3 font-semibold tabular-nums ${mediaTone(item.mediaGeral)}`}>
+                      {item.mediaGeral.toFixed(1)}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums">{item.npsScore}</td>
+                    <td className={`px-4 py-3 tabular-nums ${mediaTone(item.mediaProdutos)}`}>
+                      {item.mediaProdutos.toFixed(1)}
+                    </td>
+                    <td className={`px-4 py-3 tabular-nums ${mediaTone(item.mediaAtendimento)}`}>
+                      {item.mediaAtendimento.toFixed(1)}
+                    </td>
+                    <td className={`px-4 py-3 tabular-nums ${mediaTone(item.mediaLimpeza)}`}>
+                      {item.mediaLimpeza.toFixed(1)}
+                    </td>
+                    <td className={`px-4 py-3 tabular-nums ${mediaTone(item.mediaEspera)}`}>
+                      {item.mediaEspera.toFixed(1)}
+                    </td>
+                    <td className="px-4 py-3">{criterioLabel[item.piorCriterio]}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
 

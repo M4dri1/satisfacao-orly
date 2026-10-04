@@ -1,6 +1,6 @@
 import { evaluationSchema } from "@/lib/validation";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { buildDashboardStats, toCsv } from "@/lib/stats";
+import { buildDashboardStats, buildMesaRanking, toCsv } from "@/lib/stats";
 import { clientIp } from "@/lib/client-ip";
 import {
   evaluationRepository,
@@ -61,6 +61,7 @@ export const evaluationService = {
     const evaluations = await evaluationRepository.findMany(filters);
     return {
       stats: buildDashboardStats(evaluations),
+      porMesa: buildMesaRanking(evaluations),
       evaluations,
     };
   },

@@ -12,6 +12,20 @@ export type DashboardStats = {
   tendencia: Array<{ data: string; total: number; media: number }>;
 };
 
+export type Criterio = "produtos" | "atendimento" | "limpeza" | "espera";
+
+export type MesaStats = {
+  mesa: number | null;
+  total: number;
+  mediaGeral: number;
+  mediaProdutos: number;
+  mediaAtendimento: number;
+  mediaLimpeza: number;
+  mediaEspera: number;
+  npsScore: number;
+  piorCriterio: Criterio;
+};
+
 function average(values: number[]) {
   if (values.length === 0) {
     return 0;
@@ -97,6 +111,49 @@ export function buildDashboardStats(
     npsScore: Math.round(npsScore),
     tendencia,
   };
+}
+
+export function buildMesaRanking(evaluations: Evaluation[]): MesaStats[] {
+  const groups = new Map<number | null, Evaluation[]>();
+  for (const item of evaluations) {
+    const list = groups.get(item.mesa) || [];
+    list.push(item);
+    groups.set(item.mesa, list);
+  }
+
+  const criterios: Criterio[] = ["produtos", "atendimento", "limpeza", "espera"];
+
+  return Array.from(groups.entries())
+    .map(([mesa, items]) => {
+      const stats = buildDashboardStats(items);
+      const medias: Record<Criterio, number> = {
+        produtos: stats.mediaProdutos,
+        atendimento: stats.mediaAtendimento,
+        limpeza: stats.mediaLimpeza,
+        espera: stats.mediaEspera,
+      };
+      const piorCriterio = criterios.reduce((worst, key) =>
+        medias[key] < medias[worst] ? key : worst
+      );
+
+      return {
+        mesa,
+        total: stats.total,
+        mediaGeral: stats.mediaGeral,
+        mediaProdutos: stats.mediaProdutos,
+        mediaAtendimento: stats.mediaAtendimento,
+        mediaLimpeza: stats.mediaLimpeza,
+        mediaEspera: stats.mediaEspera,
+        npsScore: stats.npsScore,
+        piorCriterio,
+      };
+    })
+    .sort(
+      (left, right) =>
+        left.mediaGeral - right.mediaGeral ||
+        left.npsScore - right.npsScore ||
+        (left.mesa ?? Infinity) - (right.mesa ?? Infinity)
+    );
 }
 
 export function toCsv(evaluations: Evaluation[]) {

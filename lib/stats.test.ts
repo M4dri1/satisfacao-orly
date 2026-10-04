@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Evaluation } from "@prisma/client";
 import {
   buildDashboardStats,
+  buildMesaRanking,
   dayKeySaoPaulo,
   scoreGeral,
   toCsv,
@@ -182,6 +183,70 @@ describe("buildDashboardStats", () => {
       }),
     ];
     expect(buildDashboardStats(evaluations).npsScore).toBe(-100);
+  });
+});
+
+describe("buildMesaRanking", () => {
+  it("retorna lista vazia sem avaliações", () => {
+    expect(buildMesaRanking([])).toEqual([]);
+  });
+
+  it("agrupa por mesa, ordena da pior para a melhor e aponta o ponto fraco", () => {
+    const ranking = buildMesaRanking([
+      evalFixture({
+        id: "m1a",
+        mesa: 1,
+        produtos: 5,
+        atendimento: 5,
+        limpeza: 5,
+        espera: 5,
+        nps: 10,
+      }),
+      evalFixture({
+        id: "m1b",
+        mesa: 1,
+        produtos: 5,
+        atendimento: 5,
+        limpeza: 4,
+        espera: 5,
+        nps: 9,
+      }),
+      evalFixture({
+        id: "m2",
+        mesa: 2,
+        produtos: 4,
+        atendimento: 3,
+        limpeza: 4,
+        espera: 1,
+        nps: 4,
+      }),
+      evalFixture({
+        id: "geral",
+        mesa: null,
+        produtos: 4,
+        atendimento: 4,
+        limpeza: 4,
+        espera: 4,
+        nps: 8,
+      }),
+    ]);
+
+    expect(ranking.map((item) => item.mesa)).toEqual([2, null, 1]);
+    expect(ranking[0]).toMatchObject({
+      mesa: 2,
+      total: 1,
+      mediaGeral: 3,
+      npsScore: -100,
+      piorCriterio: "espera",
+    });
+    expect(ranking[2]).toMatchObject({
+      mesa: 1,
+      total: 2,
+      mediaGeral: 4.9,
+      mediaLimpeza: 4.5,
+      npsScore: 100,
+      piorCriterio: "limpeza",
+    });
   });
 });
 

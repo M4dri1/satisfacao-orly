@@ -13,6 +13,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma migrate deploy && tsx prisma/seed.ts",
+    "db:reset-data": "tsx scripts/reset-data.ts",
     "setup": "npm run docker:up && npx wait-on tcp:5432 tcp:6379 && npm run db:setup",
     "test": "vitest run",
     "test:watch": "vitest",
