@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f7f1e8;
-  --surface: #fffbf5;
-  --ink: #2c241c;
-  --muted: #7a6f63;
-  --line: #e5d9c8;
-  --accent: #b8893d;
-  --accent-dark: #8b5e2b;
-  --accent-soft: #f3e6cf;
+  --bg: #f4efe6;
+  --surface: #fbf8f2;
+  --ink: #2a2f24;
+  --muted: #6e7265;
+  --line: #e1d9c9;
+  --accent: #7f9170;
+  --accent-dark: #55644a;
+  --accent-soft: #e6ebdc;
   --danger: #9f2d2d;
-  --charcoal: #1a1511;
+  --charcoal: #3d4733;
 }
 
 html,
@@ -23,9 +23,9 @@ body {
 body {
   color: var(--ink);
   background:
-    radial-gradient(ellipse 120% 80% at 50% -20%, #fff8ee 0%, transparent 55%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(184, 137, 61, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 35% at 0% 100%, rgba(139, 94, 43, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse 120% 80% at 50% -20%, #fbf7ef 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(127, 145, 112, 0.16) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 35% at 0% 100%, rgba(85, 100, 74, 0.1) 0%, transparent 45%),
     var(--bg);
   font-family: var(--font-body), system-ui, sans-serif;
 }
@@ -72,17 +72,17 @@ body {
     @apply relative rounded-2xl border;
     background: var(--surface);
     border-color: var(--line);
-    box-shadow: 0 12px 40px rgba(44, 36, 28, 0.08);
+    box-shadow: 0 12px 40px rgba(42, 47, 36, 0.08);
   }
 
   .orly-btn {
     @apply inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold transition;
     background: var(--charcoal);
-    color: #fffbf5;
+    color: #fbf8f2;
   }
 
   .orly-btn:hover {
-    background: #3a2f25;
+    background: #4b5740;
   }
 
   .orly-btn:disabled {
@@ -98,7 +98,7 @@ body {
 
   .orly-btn-secondary:hover {
     background: var(--accent-soft);
-    border-color: #d4c2a4;
+    border-color: #c5ceb8;
   }
 
   .orly-input {
@@ -110,22 +110,22 @@ body {
 
   .orly-input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(184, 137, 61, 0.18);
+    box-shadow: 0 0 0 3px rgba(127, 145, 112, 0.22);
   }
 
   .orly-input::placeholder {
-    color: #a89888;
+    color: #a3a596;
   }
 
   .star-btn {
     @apply flex h-11 w-11 items-center justify-center text-3xl leading-none transition outline-none;
-    color: #d9cfc0;
+    color: #dcd5c6;
     background: transparent;
     border: none;
   }
 
   .star-btn:hover {
-    color: #d4a84b;
+    color: #9aab89;
     transform: scale(1.08);
   }
 
@@ -155,7 +155,7 @@ body {
   .nps-btn.active {
     background: var(--charcoal);
     border-color: var(--charcoal);
-    color: #fffbf5;
+    color: #fbf8f2;
   }
 }
 

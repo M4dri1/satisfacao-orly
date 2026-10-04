@@ -181,7 +181,7 @@ export function EvaluationForm({ mesa = null }: EvaluationFormProps) {
         />
       </div>
 
-      <div className="space-y-3 rounded-xl border border-dashed border-orly-sand bg-orly-paper/50 p-4">
+      <div className="space-y-3 rounded-xl border border-dashed border-orly-gold/40 bg-orly-paper/50 p-4">
         <p className="text-xs leading-relaxed text-orly-muted">
           Opcional — deixe um contato se quiser que a Orly retorne
         </p>
