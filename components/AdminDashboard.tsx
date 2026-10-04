@@ -311,13 +311,26 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
       </section>
 
       <section className="orly-card mb-6 overflow-hidden">
-        <div className="border-b border-orly-line px-4 py-4 sm:px-5">
-          <h2 className="brand-display text-xl text-orly-ink">
-            Comparativo por mesa
-          </h2>
-          <p className="mt-1 text-sm text-orly-muted">
-            Da pior para a melhor média. Clique em uma mesa para filtrar o painel.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-orly-line px-4 py-4 sm:px-5">
+          <div>
+            <h2 className="brand-display text-xl text-orly-ink">
+              Comparativo por mesa
+            </h2>
+            <p className="mt-1 text-sm text-orly-muted">
+              {filters.mesa
+                ? `Mostrando só a mesa ${filters.mesa}.`
+                : "Da pior para a melhor média. Clique em uma mesa para filtrar o painel."}
+            </p>
+          </div>
+          {filters.mesa ? (
+            <button
+              type="button"
+              className="orly-btn-secondary"
+              onClick={() => setFilters((prev) => ({ ...prev, mesa: "" }))}
+            >
+              Ver todas as mesas
+            </button>
+          ) : null}
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
