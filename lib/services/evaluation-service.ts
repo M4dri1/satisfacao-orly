@@ -18,7 +18,7 @@ export const evaluationService = {
     ipFallback?: string | null;
   }): Promise<ServiceResult<{ id: string } | { discarded: true }>> {
     const ip = clientIp(input.headers, input.ipFallback);
-    const limit = await checkRateLimit(`avaliacao:${ip}`, 8, 60_000);
+    const limit = await checkRateLimit(`avaliacao:${ip}`, 30, 60_000);
 
     if (!limit.allowed) {
       return {
