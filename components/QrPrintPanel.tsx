@@ -11,35 +11,46 @@ type QrCard = {
   qr: string;
 };
 
+const DEFAULT_LAST_MESA = 30;
+const MAX_MESA = 200;
+
+function clampMesa(value: number) {
+  if (!Number.isFinite(value)) return 1;
+  return Math.min(Math.max(Math.trunc(value), 1), MAX_MESA);
+}
+
+async function fetchCards(start: number, end: number): Promise<QrCard[]> {
+  const rangeStart = Math.min(clampMesa(start), clampMesa(end));
+  const rangeEnd = Math.max(clampMesa(start), clampMesa(end));
+  const mesas = Array.from(
+    { length: rangeEnd - rangeStart + 1 },
+    (_, index) => rangeStart + index
+  );
+
+  return Promise.all(
+    mesas.map(async (mesa) => {
+      const response = await fetch(`/api/qr?mesa=${mesa}`);
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || "Falha ao gerar QR.");
+      }
+      return { mesa, url: payload.url, qr: payload.qr };
+    })
+  );
+}
+
 export function QrPrintPanel() {
   const [fromMesa, setFromMesa] = useState(1);
-  const [toMesa, setToMesa] = useState(12);
+  const [toMesa, setToMesa] = useState(DEFAULT_LAST_MESA);
   const [cards, setCards] = useState<QrCard[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function generateCards(start = fromMesa, end = toMesa) {
+  async function generateCards() {
     setLoading(true);
     setError(null);
     try {
-      const rangeStart = Math.min(start, end);
-      const rangeEnd = Math.max(start, end);
-      const nextCards: QrCard[] = [];
-
-      for (let mesa = rangeStart; mesa <= rangeEnd; mesa += 1) {
-        const response = await fetch(`/api/qr?mesa=${mesa}`);
-        const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(payload.error || "Falha ao gerar QR.");
-        }
-        nextCards.push({
-          mesa,
-          url: payload.url,
-          qr: payload.qr,
-        });
-      }
-
-      setCards(nextCards);
+      setCards(await fetchCards(fromMesa, toMesa));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao gerar QRs.");
     } finally {
@@ -54,19 +65,7 @@ export function QrPrintPanel() {
       setLoading(true);
       setError(null);
       try {
-        const nextCards: QrCard[] = [];
-        for (let mesa = 1; mesa <= 12; mesa += 1) {
-          const response = await fetch(`/api/qr?mesa=${mesa}`);
-          const payload = await response.json();
-          if (!response.ok) {
-            throw new Error(payload.error || "Falha ao gerar QR.");
-          }
-          nextCards.push({
-            mesa,
-            url: payload.url,
-            qr: payload.qr,
-          });
-        }
+        const nextCards = await fetchCards(1, DEFAULT_LAST_MESA);
         if (!cancelled) {
           setCards(nextCards);
         }
