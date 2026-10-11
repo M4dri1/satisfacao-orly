@@ -2,7 +2,9 @@
 
 # Satisfação Orly
 
-**QR code customer satisfaction survey for Orly Bagueteria — Marília/SP, Brazil**
+**QR code customer satisfaction survey · Pesquisa de satisfação por QR Code**
+
+Orly Bagueteria — Marília/SP, Brazil
 
 [![CI](https://github.com/M4dri1/satisfacao-orly/actions/workflows/ci.yml/badge.svg)](https://github.com/M4dri1/satisfacao-orly/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js_14-000000?logo=nextdotjs&logoColor=white)
@@ -13,21 +15,19 @@
 ![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
 
-[**Live app**](https://satisfacao-orly.vercel.app) · [English](#english) · [Português](#português)
+[**Live app / Sistema no ar**](https://satisfacao-orly.vercel.app) · [English](#english) · [Português](#português)
 
-<img src=".github/assets/qr-table.jpg" alt="QR code card on table 2 at Orly Bagueteria" width="320" />
-&nbsp;&nbsp;
-<img src=".github/assets/form.png" alt="Survey form on a phone" width="220" />
+<img src=".github/assets/qr-table.jpg" alt="QR code on table 2 / QR Code na Mesa 2" width="300" />
+&nbsp;
+<img src=".github/assets/form.png" alt="Survey form / Formulário de avaliação" width="200" />
+&nbsp;
+<img src=".github/assets/form-end.png" alt="End of the form / Final do formulário" width="200" />
+
+<img src=".github/assets/dashboard.png" alt="Admin dashboard / Painel administrativo" width="760" />
+
+<img src=".github/assets/in-store.jpg" alt="Dashboard in use at the bakery / Painel em uso na loja" width="560" />
 
 </div>
-
-```mermaid
-flowchart LR
-    A[QR code on the table] --> B[Survey on the phone]
-    B --> C[(PostgreSQL)]
-    C --> D[Admin dashboard]
-    D --> E[Decisions on products, service, cleaning and waiting time]
-```
 
 ---
 
@@ -42,6 +42,16 @@ It was built as a university **extension project** for the Computer Science prog
 ### The problem
 
 Customer feedback used to arrive informally at the counter or as public online reviews, with no data to track service quality over time or to know which area of the store needed attention.
+
+### How it works
+
+```mermaid
+flowchart LR
+    A[QR code on the table] --> B[Survey on the phone]
+    B --> C[(Database)]
+    C --> D[Admin dashboard]
+    D --> E[Improvements in the store]
+```
 
 ### Features
 
@@ -67,26 +77,15 @@ Customer feedback used to arrive informally at the counter or as public online r
 - Per-network rate limit backed by Redis
 - Input validation with Zod and a honeypot field against bots
 
-### Screenshots
-
-<p align="center">
-  <img src=".github/assets/dashboard.png" alt="Admin dashboard" width="760" />
-</p>
-<p align="center">
-  <img src=".github/assets/in-store.jpg" alt="Dashboard in use at the bakery" width="480" />
-  &nbsp;
-  <img src=".github/assets/form-end.png" alt="End of the survey form" width="260" />
-</p>
-
 ### Tech stack
 
 | Layer | Technology |
 |---|---|
 | Front end | Next.js 14 (App Router), React, Tailwind CSS |
 | Back end | Next.js route handlers, TypeScript |
-| Database | PostgreSQL with Prisma ORM |
+| Database | PostgreSQL with Prisma |
 | Rate limit | Redis |
-| Tests | Vitest and an end-to-end report audit |
+| Tests | Vitest and report audit |
 | Hosting | Vercel |
 
 ### Project structure
@@ -147,11 +146,21 @@ Foi desenvolvido como **projeto de extensão** do curso de Ciência da Computaç
 
 As opiniões dos clientes chegavam de forma espontânea no balcão ou em avaliações públicas na internet, sem dados para acompanhar a qualidade do atendimento ao longo do tempo nem saber qual área da loja precisava de atenção.
 
+### Como funciona
+
+```mermaid
+flowchart LR
+    A[QR Code na mesa] --> B[Pesquisa no celular]
+    B --> C[(Banco de dados)]
+    C --> D[Painel da gestão]
+    D --> E[Melhorias na loja]
+```
+
 ### Funcionalidades
 
 **Para o cliente**
 
-- Um QR Code por mesa, sem aplicativo e sem cadastro
+- Um QR Code por mesa — sem aplicativo e sem cadastro
 - Notas de 1 a 5 estrelas para produtos, atendimento, limpeza e tempo de espera
 - Pergunta de NPS (0 a 10)
 - Comentário e contato opcionais para a Orly retornar
@@ -181,6 +190,21 @@ As opiniões dos clientes chegavam de forma espontânea no balcão ou em avalia�
 | Limite de envios | Redis |
 | Testes | Vitest e auditoria dos relatórios |
 | Hospedagem | Vercel |
+
+### Estrutura do projeto
+
+```
+app/avaliar        formulário do cliente
+app/admin          painel e QR Codes
+app/api            rotas HTTP
+components         componentes da interface
+lib/services       regras de negócio
+lib/repositories   acesso ao banco
+prisma             schema e migrations
+scripts            auditoria dos relatórios
+```
+
+As rotas só recebem e respondem; as regras de negócio ficam em `lib/services` e o acesso ao banco em `lib/repositories`.
 
 ### Como rodar
 
