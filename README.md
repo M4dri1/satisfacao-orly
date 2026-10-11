@@ -1,10 +1,18 @@
 <div align="center">
 
+[English](#english) · [Português](#português)
+
+</div>
+
+---
+
+<div align="center">
+
+## English
+
 # Satisfação Orly
 
-**QR code customer satisfaction survey · Pesquisa de satisfação por QR Code**
-
-Orly Bagueteria — Marília/SP, Brazil
+**QR code customer satisfaction survey for Orly Bagueteria — Marília/SP, Brazil**
 
 [![CI](https://github.com/M4dri1/satisfacao-orly/actions/workflows/ci.yml/badge.svg)](https://github.com/M4dri1/satisfacao-orly/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js_14-000000?logo=nextdotjs&logoColor=white)
@@ -15,23 +23,9 @@ Orly Bagueteria — Marília/SP, Brazil
 ![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
 
-[**Live app / Sistema no ar**](https://satisfacao-orly.vercel.app) · [English](#english) · [Português](#português)
-
-<img src=".github/assets/qr-table.jpg" alt="QR code on table 2 / QR Code na Mesa 2" width="300" />
-&nbsp;
-<img src=".github/assets/form.png" alt="Survey form / Formulário de avaliação" width="200" />
-&nbsp;
-<img src=".github/assets/form-end.png" alt="End of the form / Final do formulário" width="200" />
-
-<img src=".github/assets/dashboard.png" alt="Admin dashboard / Painel administrativo" width="760" />
-
-<img src=".github/assets/in-store.jpg" alt="Dashboard in use at the bakery / Painel em uso na loja" width="560" />
+[**Live app**](https://satisfacao-orly.vercel.app)
 
 </div>
-
----
-
-## English
 
 ### About
 
@@ -52,6 +46,22 @@ flowchart LR
     C --> D[Admin dashboard]
     D --> E[Improvements in the store]
 ```
+
+### Screenshots
+
+<p align="center">
+  <img src=".github/assets/qr-table.jpg" alt="QR code on table 2" width="300" />
+  &nbsp;
+  <img src=".github/assets/form.png" alt="Survey form" width="200" />
+  &nbsp;
+  <img src=".github/assets/form-end.png" alt="End of the form" width="200" />
+</p>
+<p align="center">
+  <img src=".github/assets/dashboard.png" alt="Admin dashboard" width="760" />
+</p>
+<p align="center">
+  <img src=".github/assets/in-store.jpg" alt="Dashboard in use at the bakery" width="560" />
+</p>
 
 ### Features
 
@@ -132,9 +142,40 @@ The admin login uses `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env`.
 | `npm run lint` | Lints the code |
 | `npm run build` | Production build |
 
+### Team
+
+| Name | Role |
+|---|---|
+| Kayky Leite | Student |
+| Gabriel Araujo | Student |
+| Gabriel Reis | Student |
+| Samira Eduarda | Student |
+| Everton Simões da Motta | Advisor |
+
+Partner: **Orly Bagueteria** — Marília/SP
+
 ---
 
+<div align="center">
+
 ## Português
+
+# Satisfação Orly
+
+**Pesquisa de satisfação por QR Code para a Orly Bagueteria — Marília/SP, Brasil**
+
+[![CI](https://github.com/M4dri1/satisfacao-orly/actions/workflows/ci.yml/badge.svg)](https://github.com/M4dri1/satisfacao-orly/actions/workflows/ci.yml)
+![Next.js](https://img.shields.io/badge/Next.js_14-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
+
+[**Sistema no ar**](https://satisfacao-orly.vercel.app)
+
+</div>
 
 ### Sobre
 
@@ -155,6 +196,22 @@ flowchart LR
     C --> D[Painel da gestão]
     D --> E[Melhorias na loja]
 ```
+
+### Telas
+
+<p align="center">
+  <img src=".github/assets/qr-table.jpg" alt="QR Code na Mesa 2" width="300" />
+  &nbsp;
+  <img src=".github/assets/form.png" alt="Formulário de avaliação" width="200" />
+  &nbsp;
+  <img src=".github/assets/form-end.png" alt="Final do formulário" width="200" />
+</p>
+<p align="center">
+  <img src=".github/assets/dashboard.png" alt="Painel administrativo" width="760" />
+</p>
+<p align="center">
+  <img src=".github/assets/in-store.jpg" alt="Painel em uso na loja" width="560" />
+</p>
 
 ### Funcionalidades
 
@@ -235,16 +292,14 @@ O login do painel usa `ADMIN_EMAIL` e `ADMIN_PASSWORD` do `.env`.
 | `npm run lint` | Verificação do código |
 | `npm run build` | Build de produção |
 
----
+### Grupo
 
-## Team / Grupo
-
-| Name / Nome | Role / Papel |
+| Nome | Papel |
 |---|---|
-| Kayky Leite | Student / Aluno |
-| Gabriel Araujo | Student / Aluno |
-| Gabriel Reis | Student / Aluno |
-| Samira Eduarda | Student / Aluna |
-| Everton Simões da Motta | Advisor / Professor orientador |
+| Kayky Leite | Aluno |
+| Gabriel Araujo | Aluno |
+| Gabriel Reis | Aluno |
+| Samira Eduarda | Aluna |
+| Everton Simões da Motta | Professor orientador |
 
-Partner / Parceiro: **Orly Bagueteria** — Marília/SP
+Parceiro: **Orly Bagueteria** — Marília/SP
